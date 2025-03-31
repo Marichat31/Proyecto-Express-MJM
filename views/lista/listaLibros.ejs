@@ -1,0 +1,62 @@
+<hr>
+<h1 class="mb-4">Lista de Libros</h1>
+
+<!-- Mensajes flash -->
+<% if (success_msg && success_msg.length > 0) { %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= success_msg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<!-- Formulario de búsqueda -->
+<form action="/libros" method="GET" class="mb-3">
+  <div class="input-group">
+    <input type="text" name="q" class="form-control" placeholder="Buscar por título o autor..." value="<%= typeof q !== 'undefined' ? q : '' %>">
+    <button type="submit" class="btn btn-primary">Buscar</button>
+  </div>
+</form>
+
+<!-- Verificación de libros existentes -->
+<% if (!libros || libros.length === 0) { %>
+  <div class="alert alert-info">
+    <% if (typeof q !== 'undefined' && q) { %>
+      No se encontraron libros que coincidan con "<%= q %>"
+    <% } else { %>
+      No hay libros registrados en el sistema
+    <% } %>
+  </div>
+<% } else { %>
+  <!-- Tabla de libros -->
+  <table class="table table-striped">
+    <thead class="table-primary">
+      <tr>
+        <th>Título</th>
+        <th>Autor</th>
+        <th>Año de publicación</th>
+        <th>Género</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% libros.forEach(function(libro) { %>
+        <tr>
+          <td><%= libro.titulo %></td>
+          <td><%= libro.autor %></td>
+          <td><%= libro.anio_publicacion %></td>
+          <td><%= libro.genero %></td>
+          <td>
+            <a href="/libros/<%= libro.id %>/editar" type="button" class="btn btn-outline-primary">Editar</a>
+            <form method="POST" action="/libros/<%= libro.id %>/eliminar?_method=DELETE" style="display:inline;">
+              <input type="hidden" name="_method" value="DELETE">
+              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este libro?')">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+  
+  <!-- Paginación -->
+  <%- include('pagination', { pagina, totalPaginas, q }); %>
+<% } %>
